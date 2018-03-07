@@ -3,6 +3,7 @@ import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from alexnet import AlexNet
 import time
+from sklearn.utils import shuffle
 
 nb_classes = 43
 learning_rate = 0.01
@@ -14,7 +15,7 @@ with open(training_file, mode='rb') as f:
 	train_data = pickle.load(f)
 X_data, y_data = train_data['features'], train_data['labels']
 # TODO: Split data into training and validation sets.
-X_train,X_valid,y_train,y_valid = train_test_split(X_data,y_data,test_size=0.33,shuffle=True)
+X_train,X_valid,y_train,y_valid = train_test_split(X_data,y_data,test_size=0.33,random_state=0)
 # TODO: Define placeholders and resize operation.
 X = tf.placeholder(tf.float32, (None,32,32,3))
 y = tf.placeholder(tf.int64,(None))
@@ -57,6 +58,7 @@ with tf.Session() as sess:
 
 	for i in range(epoch):
 		t0 = time.time()
+		X_train, y_train = shuffle(X_train,y_train)
 		for offset in range(0, X_train.shape[0], batch):
 			end = offset + batch
 			sess.run(training_operation, feed_dict = {X: X_train[offset:end], y: y_train[offset:end]})
